@@ -155,3 +155,182 @@ LEFT JOIN visita ON lugar.ip = visita.ip
 
 -- 9- Muestra el nombre de los jesuitas que han realizado alguna visitas (no hay que mostrar ningún dato más de la visita).
 
+SELECT DISTINCT jesuita.nombre
+FROM jesuita
+INNER JOIN visita ON jesuita.idJesuita = visita.idJesuita;
+
+
+-- 10- Piensa otra consulta diferente con DISTINCT (con la misma base de datos).
+
+SELECT DISTINCT lugar.lugar
+FROM lugar
+INNER JOIN visita ON lugar.ip = visita.ip;
+
+
+/*
+	Consultas para probar los operadores de la cláusula WHERE:
+	- Busca una necesidad de consultas con la base de datos jesuitas y usa cada uno de los operadores. Tienes que poner los enunciados y también la solución.
+*/
+
+-- Operador =
+SELECT nombre
+FROM jesuita
+WHERE codigo = 'JES001';
+
+-- Operador != o <>
+SELECT nombre
+FROM jesuita
+WHERE nombre != 'Padre Antonio';
+
+SELECT nombre
+FROM jesuita
+WHERE nombre <> 'Padre Antonio';
+
+-- Operador >
+SELECT nombre
+FROM jesuita
+WHERE idJesuita > 5;
+
+-- Operador <
+SELECT nombre
+FROM jesuita
+WHERE idJesuita < 3;
+
+-- Operador >=
+SELECT nombre
+FROM jesuita
+WHERE idJesuita >= 5;
+
+-- Operador <=
+SELECT nombre
+FROM jesuita
+WHERE idJesuita <= 3;
+
+-- Operador LIKE
+SELECT nombre
+FROM jesuita
+WHERE nombre LIKE 'Padre%';
+
+-- Operador IN
+SELECT nombre
+FROM jesuita
+WHERE idJesuita IN (1, 3, 5);
+
+-- Operador BETWEEN	
+SELECT nombre
+FROM jesuita
+WHERE idJesuita BETWEEN 2 AND 5;
+
+-- Operador IS NULL
+SELECT nombre
+FROM jesuita
+WHERE codigo IS NULL;
+
+-- Operador IS NOT NULL
+SELECT nombre
+FROM jesuita
+WHERE codigo IS NOT NULL;
+
+-- Operador AND
+SELECT nombre
+FROM jesuita
+WHERE idJesuita > 2 AND nombre LIKE 'Padre%';
+
+-- Operador OR
+SELECT nombre
+FROM jesuita
+WHERE idJesuita = 1 OR nombre = 'Padre María';
+
+-- Operador NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT idJesuita = 1;
+
+
+-- - Busca en Internet el operador LIKE y realiza las siguientes consultas:
+
+-- * Lugares con IP que terminen en  (completa el enunciado según tus datos).
+
+SELECT lugar
+FROM lugar
+WHERE ip LIKE '%.101';
+
+-- * Jesuitas que sean santos (comienzan por la palabra San ).
+
+SELECT nombre
+FROM jesuita
+WHERE nombre LIKE 'San%';
+
+-- * Otras consultas con LIKE (pueden ser de 2 o 3 tablas).
+
+SELECT jesuita.nombre, lugar.lugar
+FROM jesuita
+INNER JOIN visita ON jesuita.idJesuita = visita.idJesuita
+INNER JOIN lugar ON visita.ip = lugar.ip
+WHERE lugar.ip LIKE '%102';
+
+SELECT lugar.lugar, visita.fechaHora
+FROM lugar
+INNER JOIN visita ON lugar.ip = visita.ip
+INNER JOIN jesuita ON visita.idJesuita = jesuita.idJesuita
+WHERE jesuita.nombre LIKE 'Padre%';
+
+/*
+	- Todos los operadores se pueden negar, menos el IS (ya que se preguntaría por NOT NULL). 
+	Realiza consultas negando estos operadores, de nuevo tienes que poner los enunciados con su solución.
+*/
+
+-- Operador = con NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT codigo != 'JES001';
+
+-- Operador != o <> con NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT nombre = 'Padre Antonio';
+
+-- Operador > con NOT 
+SELECT nombre
+FROM jesuita
+WHERE NOT idJesuita <= 5;
+
+-- Operador < con NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT idJesuita >= 3;
+
+-- Operador >= con NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT idJesuita < 5;
+
+-- Operador <= con NOT 
+SELECT nombre
+FROM jesuita
+WHERE NOT idJesuita > 3;
+
+-- Operador LIKE con NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT nombre NOT LIKE 'Padre%';
+
+-- Operador IN con NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT idJesuita NOT IN (1, 3, 5);
+
+-- Operador BETWEEN con NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT idJesuita NOT BETWEEN 2 AND 5;
+
+-- Operador AND con NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT (idJesuita <= 2 OR nombre NOT LIKE 'Padre%');
+
+-- Operador OR con NOT
+SELECT nombre
+FROM jesuita
+WHERE NOT (idJesuita != 1 AND nombre != 'Padre María');

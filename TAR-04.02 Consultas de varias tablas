@@ -1,0 +1,157 @@
+-- TAR-04.02 Consultas de varias tablas.
+
+-- CREACIÓN DE TABLAS
+CREATE TABLE jesuita(
+	idJesuita tinyint IDENTITY NOT NULL PRIMARY KEY,
+	codigo char(60) NULL, 
+	nombre varchar(50) NOT NULL UNIQUE,
+	nombreAlumno varchar(100)NOT NULL UNIQUE,
+	firma varchar(300) NOT NULL,
+	firmaIngles varchar(300) NOT NULL
+)
+
+CREATE TABLE lugar(
+	ip char(15) NOT NULL PRIMARY KEY,
+	nombre_maquina char(12) NOT NULL,
+	lugar varchar(30) NOT NULL
+)
+
+CREATE TABLE visita(
+    idVisita  smallint NOT NULL IDENTITY PRIMARY KEY,
+	idJesuita tinyint NOT NULL,
+	ip char(15) NOT NULL,
+	fechaHora datetime NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+	CONSTRAINT Lugar_Visita FOREIGN KEY (ip) REFERENCES lugar(ip),
+	CONSTRAINT Jesuita_Visita FOREIGN KEY (idJesuita) REFERENCES jesuita(idJesuita)
+)
+
+
+-- Inserción de filas a la base de datos
+
+-- Tabla jesuitas
+INSERT INTO jesuita (codigo, nombre, nombreAlumno, firma, firmaIngles) VALUES
+('JES001', 'Padre Antonio', 'Alumno Juan Pérez', 'Firma Antonio', 'Signature Anthony'),
+('JES002', 'Padre María', 'Alumno Ana García', 'Firma María', 'Signature Mary'),
+('JES003', 'Padre Carlos', 'Alumno Luis Rodríguez', 'Firma Carlos', 'Signature Charles'),
+('JES004', 'Padre Laura', 'Alumno Sofía Martínez', 'Firma Laura', 'Signature Laura'),
+('JES005', 'Padre Pedro', 'Alumno Diego López', 'Firma Pedro', 'Signature Peter'),
+('JES006', 'Padre Isabel', 'Alumno Carmen Sánchez', 'Firma Isabel', 'Signature Isabel'),
+('JES007', 'Padre Jorge', 'Alumno Pablo Díaz', 'Firma Jorge', 'Signature George'),
+('JES008', 'Padre Elena', 'Alumno Marta Ruiz', 'Firma Elena', 'Signature Helen'),
+('JES009', 'Padre Javier', 'Alumno Daniel Álvarez', 'Firma Javier', 'Signature Xavier'),
+('JES010', 'Padre Cristina', 'Alumno Paula Torres', 'Firma Cristina', 'Signature Christine');
+
+-- Tabla lugares
+INSERT INTO lugar (ip, nombre_maquina, lugar) VALUES
+('192.168.1.101', 'MaquinaA', 'Oficina Central'),
+('192.168.1.102', 'MaquinaB', 'Sala de Reuniones'),
+('192.168.1.103', 'MaquinaC', 'Biblioteca'),
+('192.168.1.104', 'MaquinaD', 'Laboratorio'),
+('192.168.1.105', 'MaquinaE', 'Aula Magna'),
+('192.168.1.106', 'MaquinaF', 'Despacho Director'),
+('192.168.1.107', 'MaquinaG', 'Sala de Profesores'),
+('192.168.1.108', 'MaquinaH', 'Archivo'),
+('192.168.1.109', 'MaquinaI', 'Comedor'),
+('192.168.1.110', 'MaquinaJ', 'Recepción');
+
+-- Tabla visitas
+INSERT INTO visita (idJesuita, ip, fechaHora) VALUES
+(1, '192.168.1.101',DEFAULT),
+(2, '192.168.1.102',DEFAULT),
+(3, '192.168.1.103',DEFAULT),
+(4, '192.168.1.104',DEFAULT),
+(5, '192.168.1.105',DEFAULT),
+(6, '192.168.1.106',DEFAULT),
+(7, '192.168.1.107',DEFAULT),
+(8, '192.168.1.108',DEFAULT),
+(9, '192.168.1.109',DEFAULT),
+(10, '192.168.1.110',DEFAULT);
+
+-- 1- Muestra las visitas con el nombre del jesuita que las has realizado.
+SELECT visita.idVisita, jesuita.nombre, visita.ip, visita.fechaHora
+FROM visita 
+INNER JOIN jesuita ON visita.idJesuita = jesuita.idJesuita;
+
+-- 2- Muestra todas las visitas con el nombre del jesuita que las ha realizado y el nombre (lugar) de lugar visitado.
+
+SELECT visita.idVisita, jesuita.nombre, visita.ip, visita.fechaHora, lugar.lugar
+FROM visita 
+INNER JOIN jesuita ON visita.idJesuita = jesuita.idJesuita
+INNER JOIN lugar ON visita.ip = lugar.ip;
+
+-- 3- Añade un jesuita nuevo. Este jesuita no va a realizar ninguna visita.
+
+INSERT INTO jesuita (codigo, nombre, nombreAlumno, firma, firmaIngles)
+VALUES ('JES011', 'Padre Nuevo', 'Alumno Nuevo', 'Firma Nuevo', 'Signature New');
+
+-- 4- Añade 2 lugares nuevos. Estos lugares no se van a visitar.
+
+INSERT INTO lugar (ip, nombre_maquina, lugar) VALUES
+('192.168.1.111', 'MaquinaK', 'Almacén'),
+('192.168.1.112', 'MaquinaL', 'Jardín');
+
+/* 
+	5- Muestra todos los jesuitas con el nombre del lugar que han visitado. Si algún jesuita no ha realizado visita, también habrá que visualizar sus datos, mira que ocurre con el valor del campo lugar en estos casos.
+	Realiza 2 versiones de la misma consulta, una usando LEFT y otra usando RIGHT.
+*/
+
+-- LEFT JOIN
+SELECT jesuita.nombre, lugar.lugar
+FROM jesuita
+LEFT JOIN visita ON jesuita.idJesuita = visita.idJesuita
+LEFT JOIN lugar ON visita.ip = lugar.ip;
+
+-- RIGHT JOIN
+SELECT jesuita.nombre, lugar.lugar
+FROM visita
+RIGHT JOIN jesuita ON visita.idJesuita = jesuita.idJesuita
+RIGHT JOIN lugar ON visita.ip = lugar.ip;
+
+/*
+	6- Muestra todos los lugares con el nombre del jesuita que realiza la visitada. Si algún lugar no se ha visitado, también habrá que visualizar sus datos 
+	´mira que ocurre con el valor del campo nombre (jesuita) en estos casos.
+*/
+
+-- Consulta 
+SELECT lugar.lugar, lugar.nombre_maquina, lugar.ip
+FROM lugar
+LEFT JOIN visita ON lugar.ip = visita.ip
+LEFT JOIN jesuita ON visita.idJesuita = jesuita.idJesuita
+
+-- 7- Mirando los resultado de la consulta anterior, intenta mostrar solo los lugares que NO se han visitado (es la consulta anterior con una condición).
+
+SELECT lugar.lugar, lugar.nombre_maquina, lugar.ip
+FROM lugar
+LEFT JOIN visita ON lugar.ip = visita.ip WHERE visita.ip IS NULL
+
+/*
+	8- Muestra todos los jesuitas con el nombre del lugar que han visitado. Si algún jesuita no ha realizado visita, 
+	también habrá que visualizar sus datos y si algún lugar no se ha visitado también se muestra su nombre (lugar). 
+	Realiza esta consulta en 2 pasos y ve comprobado qué ocurre al hacer el JOIN.
+*/
+
+-- Consulta 1
+SELECT jesuita.nombre, visita.ip
+FROM jesuita
+LEFT JOIN visita ON jesuita.idJesuita = visita.idJesuita
+
+-- Consulta 2
+SELECT lugar.lugar, visita.ip
+FROM lugar
+LEFT JOIN visita ON lugar.ip = visita.ip
+
+-- Consulta unida
+SELECT jesuita.nombre, visita.ip
+FROM jesuita
+LEFT JOIN visita ON jesuita.idJesuita = visita.idJesuita
+
+UNION
+
+SELECT lugar.lugar, visita.ip
+FROM lugar
+LEFT JOIN visita ON lugar.ip = visita.ip
+
+-- CONSULTAS DISTINCT
+
+-- 9- Muestra el nombre de los jesuitas que han realizado alguna visitas (no hay que mostrar ningún dato más de la visita).
+
